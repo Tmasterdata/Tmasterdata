@@ -1,0 +1,35 @@
+%python
+data = spark.read.parquet("/tmp/testParquet")
+display(data)
+
+%sql 
+CREATE TABLE scalaTable
+USING parquet
+OPTIONS (path "/tmp/testParquet")
+
+%sql SELECT * FROM scalaTable
+
+Working with Complex Data Formats with Structured Streaming in Apache Spark
+
+Retrieve a sample zip file
+
+import urllib 
+urllib.request.urlretrieve("https://resources.lendingclub.com/LoanStats3a.csv.zip", "/tmp/LoanStats3a.csv.zip")
+
+Unzip file and clean up
+Unzip the file.
+Remove first comment line.
+Remove unzipped file.
+
+%sh
+unzip /tmp/LoanStats3a.csv.zip
+tail -n +2 LoanStats3a.csv > temp.csv
+rm LoanStats3a.csv
+
+Move temp file to DBFS
+dbutils.fs.mv("file:/databricks/driver/temp.csv", "dbfs:/tmp/LoanStats3a.csv")  
+
+Load file into DataFrame
+df = spark.read.format("csv").option("inferSchema", "true").option("header","true").load("dbfs:/tmp/LoanStats3a.csv")
+display(df)
+
